@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ===== NAV ===== -->
+<div class="nav">
+    <a href="/" class="home-link">
+        <i class="fa-solid fa-house-heart"></i> Trang tháng
+    </a>
+
+    <!-- ĐỔI NHÓM NHANH -->
+    <select class="group-switch"
+            onchange="location.href=this.value">
+        {% for g in groups %}
+        <option value="/month/{{ month }}/{{ g.id }}"
+            {% if g.id == group_id %}selected{% endif %}>
+            {{ g.name }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <!-- XUẤT EXCEL -->
+    <a class="excel"
+       href="/export_excel/{{ month }}/{{ group_id }}">
+        <i class="fa-solid fa-file-excel"></i> Excel nhóm
+    </a>
+</div>
+
+<h2 class="month-title">
+    💗 Tháng {{ month }} – {{ group.name }}
+</h2>
+
+<!-- ===== HỌC SINH + NGÀY DẠY ===== -->
+<div class="card">
+
+    <h3>👧👦 Học sinh</h3>
+
+    <form class="form-inline"
+          method="post"
+          action="/add_student">
+
+        <input type="hidden" name="month" value="{{ month }}">
+        <input type="hidden" name="group_id" value="{{ group_id }}">
+
+        <input name="name"
+               placeholder="👤 Tên học sinh"
+               required>
+
+        <input type="number"
+               name="fee"
+               placeholder="💰 Học phí / buổi"
+               required>
+
+        <!-- SELECT ĐỂ XÓA -->
+        <select name="student_id">
+            <option value="">🗑 Chọn học sinh</option>
+            {% for row in rows %}
+            <option value="{{ row.student.id }}">
+                {{ row.student.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn">
+            <i class="fa-solid fa-circle-plus"></i>
+        </button>
+
+        <button type="submit"
+                class="btn danger"
+                formaction="/delete_student_select/{{ month }}/{{ group_id }}"
+                formmethod="get"
+                onclick="return confirm('Xóa học sinh?')">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </form>
+
+
+    <h3>📅 Ngày dạy</h3>
+
+    <form class="form-inline"
+          method="post"
+          action="/add_lesson">
+
+        <input type="hidden" name="month" value="{{ month }}">
+        <input type="hidden" name="group_id" value="{{ group_id }}">
+
+        <input type="date"
+               name="lesson_date"
+               required>
+
+        <!-- SELECT ĐỂ XÓA -->
+        <select name="lesson_id">
+            <option value="">🗑 Chọn ngày</option>
+            {% for l in lessons %}
+            <option value="{{ l.id }}">
+                {{ l.lesson_date[8:] }}/{{ l.lesson_date[5:7] }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn">
+            <i class="fa-solid fa-circle-plus"></i>
+        </button>
+
+        <button type="submit"
+                class="btn danger"
+                formaction="/delete_lesson_select/{{ month }}/{{ group_id }}"
+                formmethod="get"
+                onclick="return confirm('Xóa ngày dạy?')">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </form>
+
+</div>
+
+
+
+<!-- ===== BẢNG ĐIỂM DANH + HỌC PHÍ ===== -->
+<table class="main-table">
+    <tr>
+        <th>👩‍🎓 Tên</th>
+
+        {% for l in lessons %}
+        <th>
+            {{ l.lesson_date[8:] }}/{{ l.lesson_date[5:7] }}
+        </th>
+        {% endfor %}
+
+        <th>📊 Số buổi</th>
+        <th>💰 Học phí</th>
+    </tr>
+
+    {% for row in rows %}
+    <tr>
+        <td class="name">
+            {{ row.student.name }}
+        </td>
+
+        {% for l in lessons %}
+        <td class="cell"
+            onclick="toggle({{ row.student.id }}, {{ l.id }})">
+            {% if row.attendance[loop.index0] %}
+                💗
+            {% endif %}
+        </td>
+        {% endfor %}
+
+        <td><b>{{ row.total }}</b></td>
+        <td class="money">{{ row.money }}.000</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<!-- ===== BẢNG ĐIỂM ===== -->
+<h3 class="score-title">📒 BẢNG ĐIỂM</h3>
+
+<table class="score-table">
+    <tr>
+        <th>Tên</th>
+
+        {% for t in titles %}
+        <th>{{ t.title }}</th>
+        {% endfor %}
+
+        <th>
+            <button type="button"
+                    class="btn small"
+                    onclick="addTitle()">
+                ➕
+            </button>
+        </th>
+    </tr>
+
+    {% for row in rows %}
+    <tr>
+        <td class="name">
+            {{ row.student.name }}
+        </td>
+
+        {% for t in titles %}
+        <td>
+            <input type="number"
+                   step="0.1"
+                   class="score-input"
+                   value="{{ row.scores[t.id] }}"
+                   onblur="saveScore({{ row.student.id }}, {{ t.id }}, this.value)">
+        </td>
+        {% endfor %}
+
+        <td></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<!-- ===== SCRIPT ===== -->
+<script>
+function toggle(student_id, lesson_id){
+    fetch("/toggle",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            student_id:student_id,
+            lesson_id:lesson_id
+        })
+    }).then(()=>location.reload());
+}
+
+function addTitle(){
+    let title = prompt("Nhập tiêu đề cột điểm");
+    if(!title) return;
+
+    fetch("/add_score_title",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            title:title,
+            month:{{ month }},
+            group_id:{{ group_id }}
+        })
+    }).then(()=>location.reload());
+}
+
+function saveScore(student_id, title_id, score){
+    fetch("/save_score",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            student_id:student_id,
+            title_id:title_id,
+            score:score
+        })
+    });
+}
+</script>
+
+{% endblock %}

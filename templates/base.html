@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý lớp học</title>
+
+    <!-- ICON -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="header-inner">
+        <img src="/static/teacher.png" class="avatar">
+
+        <div class="header-text">
+            <h1>🎀 Quản lý lớp học theo tháng</h1>
+
+            <!-- TÊN GIÁO VIÊN -->
+            <div class="teacher-name">
+                👩‍🏫 Giáo viên: <b>Nguyễn Thị Huyền Ly</b>
+            </div>
+
+            <p>📚 Điểm danh – Học phí – Báo cáo</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- NAV GIỐNG month.html -->
+<div class="nav">
+    <a href="/">
+        <i class="fa-solid fa-house-heart"></i> Trang tháng
+    </a>
+</div>
+
+<h2>👥 Tháng {{ month }} – Nhóm học</h2>
+
+<div class="card">
+    <form class="form-inline group-form" method="post" action="/add_group">
+        <input type="hidden" name="month" value="{{ month }}">
+
+        <input name="name" placeholder="Tên nhóm" required>
+
+        <!-- NÚT THÊM NHÓM -->
+        <button type="submit" class="btn">
+            <i class="fa-solid fa-circle-plus"></i> Thêm nhóm
+        </button>
+
+        <!-- NÚT COPY THÁNG TRƯỚC -->
+        {% if month > 1 %}
+        <a href="/copy_month/{{ month }}"
+           class="btn copy-btn"
+           onclick="return confirm('Copy toàn bộ nhóm & học sinh từ tháng {{ month-1 }}?')">
+            <i class="fa-solid fa-copy"></i> Copy tháng {{ month-1 }}
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="months">
+{% for g in groups %}
+    <div class="month-btn">
+        <a href="/month/{{ month }}/{{ g.id }}">
+            <i class="fa-solid fa-users"></i><br>
+            {{ g.name }}
+        </a>
+
+        <a href="/delete_group/{{ g.id }}/{{ month }}"
+           onclick="return confirm('Xóa nhóm?')"
+           style="color:#c2185b;display:block;margin-top:8px">
+           🗑 Xóa
+        </a>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}
