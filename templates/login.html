@@ -1,18 +1,202 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg,#ff9ecf,#ff6fa5,#ff4081);
+            background-size:200% 200%;
+            animation: gradientMove 8s ease infinite;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            padding:20px;
+        }
+
+        @keyframes gradientMove{
+            0%{background-position:0% 50%;}
+            50%{background-position:100% 50%;}
+            100%{background-position:0% 50%;}
+        }
+
+        .login-box{
+            background: rgba(255,255,255,0.97);
+            padding:45px 35px;
+            border-radius:28px;
+            width:100%;
+            max-width:400px;
+            box-shadow:0 25px 60px rgba(255,0,120,0.35);
+            text-align:center;
+            backdrop-filter: blur(6px);
+        }
+
+        /* ẢNH GIÁO VIÊN TRÒN */
+        .teacher-img{
+            width:160px;
+            height:160px;
+            object-fit:cover;
+            border-radius:50%;
+            margin-bottom:20px;
+            box-shadow:0 18px 40px rgba(255,0,128,0.45);
+            transition:0.3s;
+        }
+
+        .teacher-img:hover{
+            transform:scale(1.06);
+        }
+
+        h2{
+            margin-bottom:25px;
+            color:#e91e63;
+            font-size:24px;
+        }
+
+        input{
+            width:100%;
+            padding:13px;
+            margin-bottom:18px;
+            border-radius:14px;
+            border:2px solid #f8bbd0;
+            font-size:15px;
+            transition:0.3s;
+        }
+
+        input:focus{
+            border-color:#e91e63;
+            box-shadow:0 0 0 4px rgba(233,30,99,0.2);
+            outline:none;
+        }
+
+        button{
+            width:100%;
+            padding:13px;
+            border:none;
+            border-radius:14px;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .login-btn{
+            background:linear-gradient(135deg,#ff4081,#e91e63);
+            color:white;
+            box-shadow:0 12px 35px rgba(233,30,99,0.45);
+        }
+
+        .login-btn:hover{
+            transform:translateY(-4px);
+            box-shadow:0 20px 45px rgba(233,30,99,0.55);
+        }
+
+        .change-btn{
+            display:block;
+            text-align:center;
+            margin-top:15px;
+            padding:11px;
+            border-radius:14px;
+            text-decoration:none;
+            background:white;
+            color:#e91e63;
+            font-weight:bold;
+            border:2px solid #e91e63;
+            transition:0.3s;
+        }
+
+        .change-btn:hover{
+            background:#e91e63;
+            color:white;
+        }
+
+        .error{
+            color:#c2185b;
+            margin-bottom:12px;
+            font-weight:500;
+        }
+
+        /* =======================
+           MOBILE ≤ 430px (IP12 Pro Max)
+        ======================== */
+        @media (max-width:430px){
+
+            body{
+                padding:15px;
+            }
+
+            .login-box{
+                padding:35px 25px;
+                border-radius:22px;
+            }
+
+            .teacher-img{
+                width:130px;
+                height:130px;
+            }
+
+            h2{
+                font-size:20px;
+            }
+
+            input{
+                padding:12px;
+                font-size:14px;
+            }
+
+            button{
+                padding:12px;
+                font-size:15px;
+            }
+        }
+
+    </style>
+</head>
+<body>
 
 <div class="login-box">
-    <h2>Đăng nhập hệ thống</h2>
+
+    <img src="{{ url_for('static', filename='teacher.png') }}" 
+         alt="Giáo viên"
+         class="teacher-img">
+
+    <h2>🌸 Đăng nhập hệ thống</h2>
 
     {% if error %}
-        <p style="color:red;">{{ error }}</p>
+        <div class="error">{{ error }}</div>
     {% endif %}
 
-    <form method="POST">
-        <input type="text" name="username" placeholder="Tên đăng nhập" required>
-        <input type="password" name="password" placeholder="Mật khẩu" required>
-        <button type="submit">Đăng nhập</button>
+    <form method="post">
+
+        <input type="text"
+               name="username"
+               placeholder="Tên đăng nhập"
+               required>
+
+        <input type="password"
+               name="password"
+               placeholder="Mật khẩu"
+               required>
+
+        <button type="submit" class="login-btn">
+            💖 Đăng nhập
+        </button>
+
     </form>
+
+    <a href="/change_password" class="change-btn">
+        🔐 Change Password
+    </a>
+
 </div>
 
-{% endblock %}
+</body>
+</html>

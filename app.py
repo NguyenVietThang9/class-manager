@@ -22,7 +22,6 @@ def get_db():
 def init_db():
     db = get_db()
     db.executescript("""
-    -- ===== MASTER =====
     CREATE TABLE IF NOT EXISTS group_master (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE
@@ -33,7 +32,6 @@ def init_db():
         name TEXT UNIQUE
     );
 
-    -- ===== THEO THÁNG =====
     CREATE TABLE IF NOT EXISTS groups (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         month INTEGER,
@@ -62,7 +60,6 @@ def init_db():
         present INTEGER
     );
 
-    -- ===== SCORE =====
     CREATE TABLE IF NOT EXISTS score_titles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         month INTEGER,
@@ -77,7 +74,6 @@ def init_db():
         score REAL
     );
 
-    -- ===== USERS (THÊM) =====
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -86,7 +82,7 @@ def init_db():
     """)
     db.commit()
 
-    # Tạo tài khoản HuyenLy mặc định nếu chưa có
+    # Tạo tài khoản mặc định nếu chưa có
     user = db.execute("SELECT * FROM users WHERE username='HuyenLy'").fetchone()
     if not user:
         db.execute(
@@ -129,6 +125,75 @@ def login():
 def logout():
     session.clear()
     return redirect("/login")
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+
+    if request.method == "POST":
+        db = get_db()
+
+        # Lấy dữ liệu từ form
+        username = request.form.get("username")
+        current_password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+
+        # Kiểm tra thiếu dữ liệu
+        if not username or not current_password or not new_password or not confirm_password:
+            return render_template(
+                "change_password.html",
+                error="Vui lòng nhập đầy đủ thông tin"
+            )
+
+        # Kiểm tra user tồn tại
+        user = db.execute(
+            "SELECT * FROM users WHERE username=?",
+            (username,)
+        ).fetchone()
+
+        if not user:
+            return render_template(
+                "change_password.html",
+                error="Tài khoản không tồn tại"
+            )
+
+        # Kiểm tra mật khẩu hiện tại
+        if user["password"] != current_password:
+            return render_template(
+                "change_password.html",
+                error="Sai mật khẩu hiện tại"
+            )
+
+        # Kiểm tra xác nhận mật khẩu
+        if new_password != confirm_password:
+            return render_template(
+                "change_password.html",
+                error="Mật khẩu xác nhận không khớp"
+            )
+
+        # UPDATE PASSWORD
+        db.execute(
+            "UPDATE users SET password=? WHERE username=?",
+            (new_password, username)
+        )
+        db.commit()
+
+        # Kiểm tra lại sau khi update (debug chắc chắn lưu DB)
+        updated_user = db.execute(
+            "SELECT password FROM users WHERE username=?",
+            (username,)
+        ).fetchone()
+
+        print("Password sau khi update:", updated_user["password"])
+
+        return render_template(
+            "change_password.html",
+            success="🎉 Đổi mật khẩu thành công!"
+        )
+
+    return render_template("change_password.html")
+
 
 
 # ================= INDEX =================

@@ -444,6 +444,132 @@ td:hover {
     background: #c0392b;
 }
 
+/* =====================================
+   MOBILE – iPhone 12 Pro Max (≤430px)
+===================================== */
+@media (max-width: 430px) {
+
+    body {
+        font-size: 14px;
+    }
+
+    /* HEADER */
+    .header {
+        padding: 18px 14px;
+    }
+
+    .header-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 75px;
+        height: 75px;
+    }
+
+    .header-text {
+        margin-left: 0;
+    }
+
+    .header-text h1 {
+        font-size: 20px;
+    }
+
+    .teacher-name {
+        font-size: 13px;
+    }
+
+    .header-text p {
+        font-size: 12px;
+    }
+
+    .logout-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* CONTAINER */
+    .container {
+        padding: 14px;
+    }
+
+    /* MONTH GRID */
+    .months {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .month-btn {
+        padding: 18px 10px;
+        font-size: 16px;
+    }
+
+    .month-btn i {
+        font-size: 24px;
+    }
+
+    /* NAV */
+    .nav {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nav a,
+    .group-switch {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* CARD */
+    .card {
+        padding: 16px;
+        border-radius: 18px;
+    }
+
+    /* FORM */
+    .form-inline {
+        flex-direction: column;
+    }
+
+    .form-inline input,
+    .form-inline select,
+    .form-inline button {
+        width: 100%;
+    }
+
+    /* TABLE SCROLL FIX */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 13px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .score-table input[type="number"] {
+        width: 55px;
+    }
+
+    /* COPY SECTION */
+    .copy-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .copy-row select,
+    .copy-btn {
+        width: 100%;
+    }
+
+}
+
 
 /* =====================
    SMALL ANIMATION
