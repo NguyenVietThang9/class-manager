@@ -1,9 +1,16 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, session
 import sqlite3
 from openpyxl import Workbook
+from functools import wraps
+import os
 
 app = Flask(__name__)
-DB = "database.db"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, "database.db")
+print("DB PATH:", DB)
+
+app.secret_key = "super_secret_key_123"
 
 # ================= DB =================
 def get_db():
@@ -69,18 +76,71 @@ def init_db():
         title_id INTEGER,
         score REAL
     );
+
+    -- ===== USERS (THÊM) =====
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    );
     """)
     db.commit()
+
+    # Tạo tài khoản HuyenLy mặc định nếu chưa có
+    user = db.execute("SELECT * FROM users WHERE username='HuyenLy'").fetchone()
+    if not user:
+        db.execute(
+            "INSERT INTO users (username, password) VALUES (?,?)",
+            ("HuyenLy", "yeulyly")
+        )
+        db.commit()
+
+
+# ================= LOGIN REQUIRED =================
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user" not in session:
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# ================= LOGIN =================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        db = get_db()
+        user = db.execute(
+            "SELECT * FROM users WHERE username=? AND password=?",
+            (request.form["username"], request.form["password"])
+        ).fetchone()
+
+        if user:
+            session["user"] = user["username"]
+            return redirect("/")
+        else:
+            return render_template("login.html", error="Sai tài khoản hoặc mật khẩu")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 
 # ================= INDEX =================
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
 
 # ================= GROUP =================
 @app.route("/groups/<int:month>")
+@login_required
 def groups(month):
     db = get_db()
     groups = db.execute("""
@@ -94,6 +154,7 @@ def groups(month):
 
 
 @app.route("/add_group", methods=["POST"])
+@login_required
 def add_group():
     db = get_db()
     name = request.form["name"]
@@ -119,6 +180,7 @@ def add_group():
 
 
 @app.route("/delete_group/<int:group_id>/<int:month>")
+@login_required
 def delete_group(group_id, month):
     db = get_db()
     db.execute("DELETE FROM groups WHERE id=?", (group_id,))
@@ -131,6 +193,7 @@ def delete_group(group_id, month):
 
 # ================= COPY DATA =================
 @app.route("/copy_month/<int:month>")
+@login_required
 def copy_month(month):
     if month == 1:
         return redirect("/groups/1")
@@ -147,7 +210,6 @@ def copy_month(month):
 
     for pg in prev_groups:
 
-        # Nếu nhóm đã tồn tại trong tháng mới → bỏ qua
         existing_group = db.execute("""
             SELECT g.id
             FROM groups g
@@ -167,7 +229,6 @@ def copy_month(month):
             "SELECT last_insert_rowid()"
         ).fetchone()[0]
 
-        # ===== copy học sinh =====
         prev_students = db.execute("""
             SELECT * FROM students
             WHERE month=? AND group_id=?
@@ -175,7 +236,6 @@ def copy_month(month):
 
         for ps in prev_students:
 
-            # Nếu học sinh đã tồn tại → bỏ qua
             exist_student = db.execute("""
                 SELECT id FROM students
                 WHERE month=? AND group_id=? AND student_master_id=?
@@ -204,6 +264,7 @@ def copy_month(month):
 
 # ================= MONTH VIEW =================
 @app.route("/month/<int:month>/<int:group_id>")
+@login_required
 def month_view(month, group_id):
     db = get_db()
 
@@ -282,10 +343,9 @@ def month_view(month, group_id):
         rows=rows,
         titles=titles
     )
-
-
 # ================= STUDENT =================
 @app.route("/add_student", methods=["POST"])
+@login_required
 def add_student():
     db = get_db()
     name = request.form["name"]
@@ -316,6 +376,7 @@ def add_student():
 
 
 @app.route("/delete_student_select/<int:month>/<int:group_id>")
+@login_required
 def delete_student_select(month, group_id):
     sid = request.args.get("student_id")
     if sid:
@@ -329,6 +390,7 @@ def delete_student_select(month, group_id):
 
 # ================= LESSON =================
 @app.route("/add_lesson", methods=["POST"])
+@login_required
 def add_lesson():
     db = get_db()
     db.execute("""
@@ -344,6 +406,7 @@ def add_lesson():
 
 
 @app.route("/delete_lesson_select/<int:month>/<int:group_id>")
+@login_required
 def delete_lesson_select(month, group_id):
     lid = request.args.get("lesson_id")
     if lid:
@@ -356,6 +419,7 @@ def delete_lesson_select(month, group_id):
 
 # ================= ATTENDANCE =================
 @app.route("/toggle", methods=["POST"])
+@login_required
 def toggle():
     db = get_db()
     sid = request.json["student_id"]
@@ -382,6 +446,7 @@ def toggle():
 
 # ================= SCORE =================
 @app.route("/add_score_title", methods=["POST"])
+@login_required
 def add_score_title():
     db = get_db()
     db.execute("""
@@ -397,6 +462,7 @@ def add_score_title():
 
 
 @app.route("/save_score", methods=["POST"])
+@login_required
 def save_score():
     db = get_db()
     sid = request.json["student_id"]

@@ -7,7 +7,6 @@
         <i class="fa-solid fa-house-heart"></i> Trang tháng
     </a>
 
-    <!-- ĐỔI NHÓM NHANH -->
     <select class="group-switch"
             onchange="location.href=this.value">
         {% for g in groups %}
@@ -18,7 +17,6 @@
         {% endfor %}
     </select>
 
-    <!-- XUẤT EXCEL -->
     <a class="excel"
        href="/export_excel/{{ month }}/{{ group_id }}">
         <i class="fa-solid fa-file-excel"></i> Excel nhóm
@@ -50,7 +48,6 @@
                placeholder="💰 Học phí / buổi"
                required>
 
-        <!-- SELECT ĐỂ XÓA -->
         <select name="student_id">
             <option value="">🗑 Chọn học sinh</option>
             {% for row in rows %}
@@ -87,7 +84,6 @@
                name="lesson_date"
                required>
 
-        <!-- SELECT ĐỂ XÓA -->
         <select name="lesson_id">
             <option value="">🗑 Chọn ngày</option>
             {% for l in lessons %}
@@ -127,6 +123,7 @@
 
         <th>📊 Số buổi</th>
         <th>💰 Học phí</th>
+        <th>Thu tiền</th>
     </tr>
 
     {% for row in rows %}
@@ -146,6 +143,24 @@
 
         <td><b>{{ row.total }}</b></td>
         <td class="money">{{ row.money }}.000</td>
+
+        <!-- CỘT TÍCH GIAO DIỆN -->
+        <td style="text-align:center;">
+            <span class="paid-icon"
+                  onclick="toggleIcon(this)"
+                  style="
+                    background:#dc3545;
+                    color:white;
+                    padding:6px 12px;
+                    border-radius:50px;
+                    font-weight:bold;
+                    cursor:pointer;
+                    display:inline-block;
+                    min-width:30px;">
+                ✗
+            </span>
+        </td>
+
     </tr>
     {% endfor %}
 </table>
@@ -231,6 +246,17 @@ function saveScore(student_id, title_id, score){
             score:score
         })
     });
+}
+
+/* ===== TOGGLE ICON THU TIỀN (CHỈ GIAO DIỆN) ===== */
+function toggleIcon(el){
+    if(el.innerHTML.trim() === "✗"){
+        el.innerHTML = "✓";
+        el.style.background = "#28a745";
+    }else{
+        el.innerHTML = "✗";
+        el.style.background = "#dc3545";
+    }
 }
 </script>
 

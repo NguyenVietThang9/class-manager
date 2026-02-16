@@ -394,6 +394,56 @@ td:hover {
     border-radius: 14px;
 }
 
+.login-box {
+    width: 320px;
+    margin: 100px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.login-box button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-text {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.header-right {
+    margin-left: auto;
+}
+
+.logout-btn {
+    padding: 6px 14px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}
+
 
 /* =====================
    SMALL ANIMATION

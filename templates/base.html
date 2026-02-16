@@ -14,18 +14,31 @@
 
 <div class="header">
     <div class="header-inner">
+
+        <!-- Avatar -->
         <img src="/static/teacher.png" class="avatar">
 
+        <!-- Nội dung header -->
         <div class="header-text">
             <h1>🎀 Quản lý lớp học theo tháng</h1>
 
-            <!-- TÊN GIÁO VIÊN -->
             <div class="teacher-name">
                 👩‍🏫 Giáo viên: <b>Nguyễn Thị Huyền Ly</b>
             </div>
 
             <p>📚 Điểm danh – Học phí – Báo cáo</p>
         </div>
+
+        <!-- Logout -->
+        {% if session.get("user") %}
+        <div class="header-right">
+            <a href="/logout" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+        {% endif %}
+
     </div>
 </div>
 
